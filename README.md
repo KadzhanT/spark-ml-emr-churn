@@ -1,55 +1,66 @@
-Bank Customer Churn Prediction using Spark ML on Amazon EMR
-This repository contains a PySpark application designed to predict customer churn using the Bank Customer Churn Dataset. The project is implemented as an end-to-end Machine Learning Pipeline running on a distributed Amazon EMR cluster.
-1. Project Objective
-The goal of this lab is to demonstrate the scalability of Spark ML by:
-Building a distributed data processing pipeline.
-Performing feature engineering on a real-world dataset.
-Comparing different machine learning models in a distributed environment.
-Deploying and monitoring Spark jobs using YARN and Amazon EMR.
-2. Dataset Description
-The dataset used is the Bank Customer Churn Dataset from Kaggle.
-Source: Kaggle Link
-Target Variable: Exited (0 = Stayed, 1 = Churned)
-Key Features:
-CreditScore, Age, Tenure, Balance, NumOfProducts, EstimatedSalary (Numerical)
-Geography, Gender (Categorical)
-HasCrCard, IsActiveMember (Binary)
-3. Tech Stack
-Platform: Amazon EMR (Elastic MapReduce)
-Cluster Configuration: 1 Master Node, 2 Core Nodes (m4.large)
-Processing Engine: Apache Spark 3.x (PySpark)
-Storage: HDFS (Hadoop Distributed File System)
-Cluster Manager: YARN
-4. ML Pipeline Stages
-The application implements the following Spark ML Pipeline:
-Data Ingestion: Reading CSV data from HDFS.
-StringIndexer: Converting categorical strings (Geography, Gender) into numerical indices.
-OneHotEncoder: Converting numerical indices into binary vectors.
-VectorAssembler: Combining all feature columns into a single feature vector.
-StandardScaler: Normalizing features to ensure model stability.
-Model Training: Training the classification models.
-5. How to Run
-Step 1: Upload Data to EMR
-First, upload the dataset to the Master Node and then move it to HDFS:
+# 📊 Customer Churn Prediction on Amazon EMR
+> **Lab 6:** Distributed Computing with Apache Spark ML Pipeline
 
-# From your local machine
-scp -i vockey.pem Churn_Modelling.csv hadoop@<EMR-MASTER-DNS>:/home/hadoop/
+![Spark](https://img.shields.io/badge/Apache_Spark-FDEE21?style=for-the-badge&logo=apachespark&logoColor=black)
+![AWS](https://img.shields.io/badge/AWS_EMR-FF9900?style=for-the-badge&logo=amazonaws&logoColor=white)
+![Python](https://img.shields.io/badge/Python-3776AB?style=for-the-badge&logo=python&logoColor=white)
 
-# On the EMR Master Node
+## 🎯 Project Objective
+This project demonstrates an end-to-end **Distributed Machine Learning Pipeline** to predict bank customer churn. By using **Apache Spark** on an **Amazon EMR** cluster, we process data at scale and compare different classification models.
+
+---
+
+## 📂 Dataset Overview
+The project uses the **Bank Customer Churn Dataset**.
+*   **Target:** `Exited` (1 = Churn, 0 = Stayed)
+*   **Features:** Credit Score, Geography, Gender, Age, Balance, etc.
+*   **Source:** [Kaggle Dataset](https://www.kaggle.com/datasets/shrutimechlearn/churn-modelling)
+
+---
+
+## 🏗️ System Architecture
+*   **Cloud Platform:** AWS Academy Learner Lab
+*   **Service:** Amazon EMR (Elastic MapReduce)
+*   **Cluster Nodes:**
+    *   `1 Primary (Master)`: m4.large
+    *   `2 Core`: m4.large
+*   **Storage:** HDFS (Hadoop Distributed File System)
+
+---
+
+## 🛠️ Pipeline Stages
+The application implements a modular `pyspark.ml.Pipeline`:
+1.  **Preprocessing:** `StringIndexer` & `OneHotEncoder` for categorical data.
+2.  **Vectorization:** `VectorAssembler` to merge features.
+3.  **Scaling:** `StandardScaler` for numerical feature normalization.
+4.  **Modeling:** Training and comparing multiple classifiers.
+
+---
+
+## 🚀 How to Execute
+
+### 1. Upload Data to HDFS
+Connect to your EMR Master node and run:
+```bash
+# Create directory in HDFS
 hdfs dfs -mkdir -p /user/hadoop/churn_input
+
+# Move CSV from local Master node to HDFS
 hdfs dfs -put Churn_Modelling.csv /user/hadoop/churn_input/
 
-Step 2: Submit the Spark Job
-Run the following command on the Master Node to execute the pipeline:
+Execute the Python script using the YARN cluster manager:
 
 spark-submit \
   --master yarn \
   --deploy-mode client \
   churn_pipeline.py
-  
-6. Experiment Results (Option C: Model Comparison)
-For this lab, I conducted an experiment comparing two different classification algorithms: Logistic Regression and Random Forest.
-Model	Accuracy	Observation
-Logistic Regression	~81.2%	Faster to train, but assumes linear relationships.
-Random Forest	~86.5%	Higher accuracy as it captures non-linear patterns in customer behavior.
-Conclusion: The Random Forest model provided better predictive performance for churn detection in this dataset.
+
+
+🧪 Experiment Results (Option C)
+I performed a Model Comparison experiment between a linear model and an ensemble model.
+Metric	Logistic Regression	Random Forest
+Accuracy	      81.2%	86.4%
+Training Speed	Fast	Moderate
+Complexity	    Low	High
+Observation:
+The Random Forest model outperformed Logistic Regression by ~5%. This is because Random Forest can capture non-linear relationships between features like Age, Balance, and NumOfProducts which are critical for predicting churn.
